@@ -1,6 +1,6 @@
 bl_info= {
     "name": "Collection Exporter",
-    "author": "Kacper Filas",
+    "author": "YourName",
     "version": (1, 0),
     "blender": (4, 3, 0),
     "location": "Ctrl + E in Object Mode",
@@ -17,49 +17,40 @@ class CollectionExporter(bpy.types.Operator):
     bl_label = "Export Collection"
 
     def execute(self, context):
-
-    # Active object selected
+    
         obj = context.active_object
 
         if not obj:
             self.report({"ERROR"}, "No active object selected")
             return {'CANCELLED'}
-# Set parent collection of active object
-        collections = obj.users_collection
 
+        collections = obj.users_collection
         if not collections:
             self.report({"ERROR"}, "Object is not in any collection")
             return {'CANCELLED'}
 
-# Get first collection.
         collection = collections[0]
 
+        # self.report({"INFO"}, f"Collection: {collections.name}")
 
-# Set Object mode
-        bpy.ops.object.mode_set(mode='OBJECT')
 
-# Select all objects in collection
         for ob in collection.objects:
             ob.select_set(True)
 
         export_dir = bpy.path.abspath(context.scene.collection_exporter_props.export_path)
         export_path = os.path.join(export_dir, f"{collection.name}.fbx")
        
-
+        
         if not os.path.exists(export_dir):
             os.makedirs(export_dir)
 
-
-# Export Options for unity
         bpy.ops.export_scene.fbx(
             filepath=export_path,
             use_selection=True,
             apply_unit_scale=True,
-            use_space_transform=True,
-            apply_scale_options="FBX_SCALE_NONE",
+            apply_scale_options="FBX_SCALE_ALL",
             bake_anim = False,
             use_mesh_modifiers=True,
-            bake_space_transform = True,
             axis_forward = "-Z",
             axis_up ="Y"
             )
